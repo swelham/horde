@@ -8,6 +8,8 @@ defmodule Horde.NodeListener do
   """
   use GenServer
 
+  require Logger
+
   # API
 
   @spec start_link(atom()) :: GenServer.on_start()
@@ -30,12 +32,16 @@ defmodule Horde.NodeListener do
     {:noreply, cluster}
   end
 
-  def handle_info({:nodeup, _node, _node_type}, cluster) do
+  def handle_info({:nodeup, node, _node_type}, cluster) do
+    Logger.info("[DEBUG] #{inspect(Node.self())} - Node up #{inspect(node)} (cluster: #{inspect(cluster)})")
+
     set_members(cluster)
     {:noreply, cluster}
   end
 
-  def handle_info({:nodedown, _node, _node_type}, cluster) do
+  def handle_info({:nodedown, node, _node_type}, cluster) do
+    Logger.info("[DEBUG] #{inspect(Node.self())} - Node down #{inspect(node)} (cluster: #{inspect(cluster)})")
+
     set_members(cluster)
     {:noreply, cluster}
   end

@@ -113,6 +113,8 @@ defmodule Horde.RegistryImpl do
   end
 
   def handle_info({:EXIT, pid, _reason}, state) do
+    Logger.info("[DEBUG] #{inspect(Node.self())} - EXIT received for pid #{inspect(pid)} (state: #{inspect(state)})")
+
     case :ets.take(state.pids_ets_table, pid) do
       [{_pid, keys}] ->
         DeltaCrdt.drop(

@@ -154,10 +154,14 @@ defmodule Horde.DynamicSupervisorImpl do
 
     case choose_node(child_spec, state) do
       {:ok, %{name: ^this_name}} ->
+        Logger.info("[DEBUG] #{inspect(Node.self())} - Starting child #{inspect(child_spec)} (supervisor: #{inspect(state.name)}) (node: #{inspect(this_name)})")
+
         {reply, new_state} = add_child(child_spec, state)
         {:reply, reply, new_state}
 
       {:ok, %{name: other_node_name}} ->
+        Logger.info("[DEBUG] #{inspect(Node.self())} - (PROXY) Starting child #{inspect(child_spec)} (supervisor: #{inspect(state.name)}) (node: #{inspect(other_node_name)})")
+
         proxy_to_node(other_node_name, msg, from, state)
 
       {:error, reason} ->

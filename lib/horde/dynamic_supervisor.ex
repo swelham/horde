@@ -52,6 +52,8 @@ defmodule Horde.DynamicSupervisor do
   """
   use Supervisor
 
+  require Logger
+
   @type options() :: [option()]
   @type option ::
           {:name, name :: atom()}
@@ -228,14 +230,20 @@ defmodule Horde.DynamicSupervisor do
   @doc """
   Works like `DynamicSupervisor.stop/3`.
   """
-  def stop(supervisor, reason \\ :normal, timeout \\ :infinity),
-    do: Supervisor.stop(:"#{supervisor}.Supervisor", reason, timeout)
+  def stop(supervisor, reason \\ :normal, timeout \\ :infinity) do
+    Logger.info("[DEBUG] #{inspect(Node.self())} - Stopping supervisor #{inspect(supervisor)}")
+
+    Supervisor.stop(:"#{supervisor}.Supervisor", reason, timeout)
+  end
 
   @doc """
   Works like `DynamicSupervisor.start_child/2`.
   """
   def start_child(supervisor, child_spec) do
     child_spec = Supervisor.child_spec(child_spec, [])
+
+    Logger.info("[DEBUG] #{inspect(Node.self())} - Starting child #{inspect(child_spec)} (supervisor: #{inspect(supervisor)})")
+
     call(supervisor, {:start_child, child_spec})
   end
 
@@ -246,8 +254,11 @@ defmodule Horde.DynamicSupervisor do
   """
   @spec terminate_child(Supervisor.supervisor(), child_pid :: pid()) ::
           :ok | {:error, :not_found} | {:error, {:node_dead_or_shutting_down, String.t()}}
-  def terminate_child(supervisor, child_pid) when is_pid(child_pid),
-    do: call(supervisor, {:terminate_child, child_pid})
+  def terminate_child(supervisor, child_pid) when is_pid(child_pid) do
+    Logger.info("[DEBUG] #{inspect(Node.self())} - Terminating child #{inspect(child_pid)} (supervisor: #{inspect(supervisor)})")
+
+    call(supervisor, {:terminate_child, child_pid})
+  end
 
   @doc """
   Works like `DynamicSupervisor.which_children/1`.

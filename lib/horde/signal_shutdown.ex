@@ -18,6 +18,7 @@ defmodule Horde.SignalShutdown do
 
   def terminate(_reason, signal_to) do
     Enum.each(signal_to, fn destination ->
+      Logger.info("[DEBUG] #{inspect(Node.self())} - Shutting down #{inspect(destination)}")
       :ok = GenServer.call(destination, :horde_shutting_down)
     end)
   end
